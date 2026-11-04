@@ -430,7 +430,11 @@ Exemples d'usage:
         if confirm not in ['y', 'yes', 'o', 'oui']:
             sys.exit(1)
     
-    playlist_name = sanitize_folder_name(url.rstrip('/').split('/')[-1]) or 'playlist'
+    # Ignore la query (?si=...) et le token des liens privés (/s-XXXX) pour nommer le dossier
+    segments = [s for s in urlparse(url).path.split('/') if s]
+    if len(segments) > 1 and segments[-1].startswith('s-'):
+        segments.pop()
+    playlist_name = sanitize_folder_name(segments[-1] if segments else '') or 'playlist'
     base_dir = "downloads"
     playlist_dir = os.path.join(base_dir, playlist_name)
     wav_dir = os.path.join(playlist_dir, "WAV")
